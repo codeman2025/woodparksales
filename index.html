@@ -17,6 +17,43 @@
       color: #333;
     }
 
+    /* === NAVBAR === */
+    nav {
+      background: #1a252f;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1001;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .nav-logo {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 1.5rem;
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #00acee;
+    }
+
+    /* === HEADER === */
     header {
       background: #2c3e50;
       color: white;
@@ -101,7 +138,7 @@
       margin-top: 2rem;
     }
 
-    /* Modals */
+    /* === MODALS === */
     .modal {
       display: none;
       position: fixed;
@@ -137,19 +174,47 @@
     .close:hover {
       color: #000;
     }
+
+    .admin-link {
+      margin-top: 1rem;
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: #e67e22;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .admin-link:hover {
+      background: #d35400;
+    }
   </style>
 </head>
 <body>
 
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-logo">🌲 Woodpark Sales</div>
+      <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="https://codeman2025.github.io/woodparksales/admin.html" target="_blank">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
   <header>
     <h1>Woodpark Sales</h1>
     <p>Your Hub for All Things Woodpark</p>
   </header>
 
+  <!-- INTRO -->
   <section class="intro">
     <p>Welcome to Woodpark Sales – the business hub connecting all our unique stores and experiences. Whether you're shopping for slushies, holiday magic, or general goods, we’ve got you covered.</p>
   </section>
 
+  <!-- SHOP CARDS -->
   <section class="shop-list">
     <div class="shop-card">
       <h2>Woodpark Shop 🛍️</h2>
@@ -170,16 +235,18 @@
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer>
     <p>&copy; 2025 Woodpark Sales. All rights reserved.</p>
   </footer>
 
-  <!-- Modals -->
+  <!-- MODALS -->
   <div id="modal-shop" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('shop')">&times;</span>
       <h3>Woodpark Shop 🛍️</h3>
       <p>Explore everyday essentials and exclusive deals. Perfect for home, office, or gifting.</p>
+      <a class="admin-link" href="/admin/shop.html" target="_blank">Go to Admin Page</a>
     </div>
   </div>
 
@@ -188,6 +255,7 @@
       <span class="close" onclick="closeModal('slushie')">&times;</span>
       <h3>Woodpark Slushie Shack 🧃</h3>
       <p>Serving sweet, cold slushies in every flavor imaginable. Grab your favorite today!</p>
+      <a class="admin-link" href="/admin/slushie.html" target="_blank">Go to Admin Page</a>
     </div>
   </div>
 
@@ -196,9 +264,11 @@
       <span class="close" onclick="closeModal('xmas')">&times;</span>
       <h3>Woodpark Christmas Market 🎄</h3>
       <p>Magical gifts, twinkly lights, and festive fun. Only open during the holiday season!</p>
+      <a class="admin-link" href="/admin/christmas.html" target="_blank">Go to Admin Page</a>
     </div>
   </div>
 
+  <!-- JS -->
   <script>
     function openModal(id) {
       document.getElementById(`modal-${id}`).style.display = 'flex';
