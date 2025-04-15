@@ -11,7 +11,14 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-X12XYY14J4');
+    gtag('config', 'G-X12XYY14J4');  // Your Analytics ID
+
+    // 🎯 Track page views
+    gtag('event', 'page_view', {
+      page_location: window.location.href,
+      page_path: window.location.pathname,
+      page_title: document.title
+    });
   </script>
 
   <!-- ✅ Styles -->
