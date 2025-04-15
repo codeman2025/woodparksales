@@ -11,9 +11,7 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-X12XYY14J4');  // Your Analytics ID
-
-    // 🎯 Track page views
+    gtag('config', 'G-X12XYY14J4');
     gtag('event', 'page_view', {
       page_location: window.location.href,
       page_path: window.location.pathname,
@@ -123,10 +121,26 @@
 
     #logout-btn {
       background-color: var(--danger);
+      margin-top: 1rem;
     }
 
     #logout-btn:hover {
       background-color: #cc4444;
+    }
+
+    .link-section, .cred-section {
+      background-color: var(--panel);
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+    }
+
+    .link-section h2, .cred-section h2 {
+      color: var(--accent);
+    }
+
+    .link-section button {
+      margin: 0.3rem 0.3rem 0 0;
     }
 
     @media (max-width: 500px) {
@@ -154,11 +168,28 @@
   <!-- 👨‍💻 Admin Panel -->
   <div id="admin-panel">
     <h1>Welcome to the Admin Panel</h1>
-    <p>You're logged in and ready to manage your Woodpark admin panel.</p>
+
+    <!-- 🔗 Quick Links -->
+    <div class="link-section">
+      <h2>Quick Access</h2>
+      <button onclick="window.open('https://console.firebase.google.com/', '_blank')">Firebase Console</button>
+      <button onclick="window.open('https://analytics.google.com/', '_blank')">Google Analytics</button>
+      <button onclick="window.open('https://github.com/', '_blank')">GitHub</button>
+    </div>
+
+    <!-- 🔐 Account Info -->
+    <div class="cred-section">
+      <h2>Account Credentials</h2>
+      <p><strong>Firebase Email:</strong> admin@woodpark.com</p>
+      <p><strong>Analytics Email:</strong> admin@woodpark.com</p>
+      <p><strong>GitHub Username:</strong> woodparkadmin</p>
+      <p><em>Note: Passwords are stored securely elsewhere.</em></p>
+    </div>
+
     <button id="logout-btn">Logout</button>
   </div>
 
-  <!-- 🔥 Firebase SDK -->
+  <!-- 🔥 Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
 
@@ -181,10 +212,7 @@
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
-        // 🎯 Track successful login event
-        gtag('event', 'login', {
-          method: 'email/password'
-        });
+        gtag('event', 'login', { method: 'email/password' });
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
@@ -201,7 +229,6 @@
       } catch (error) {
         console.error(error);
         document.getElementById('error-message').textContent = error.message;
-        // 🎯 Track failed login attempt
         gtag('event', 'login_failed', {
           method: 'email/password',
           error: error.message
@@ -211,12 +238,8 @@
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
-      // 🎯 Track logout event
-      gtag('event', 'logout', {
-        method: 'email/password'
-      });
+      gtag('event', 'logout', { method: 'email/password' });
     });
   </script>
-
 </body>
 </html>
