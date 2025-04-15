@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Woodpark Sales</title>
+  <title>Woodpark Sales - Business Hub</title>
   <style>
     * {
       margin: 0;
@@ -13,123 +13,129 @@
     }
 
     body {
-      background: #f4f4f4;
+      background: #f0f2f5;
       color: #333;
     }
 
     header {
       background: #2c3e50;
       color: white;
-      display: flex;
-      justify-content: space-between;
-      padding: 1rem 2rem;
-      align-items: center;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 1.5rem;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: #f1c40f;
-    }
-
-    .hero {
+      padding: 2rem 1rem;
       text-align: center;
-      padding: 4rem 2rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #ccc;
+    }
+
+    .intro {
+      text-align: center;
+      padding: 2rem 1rem;
       background: #ecf0f1;
     }
 
-    .hero h1 {
-      font-size: 2.5rem;
+    .intro p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .shop-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .shop-card {
+      background: white;
+      width: 280px;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .shop-card:hover {
+      transform: scale(1.03);
+    }
+
+    .shop-card h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .shop-card p {
+      color: #555;
+      font-size: 1rem;
       margin-bottom: 1rem;
     }
 
-    .hero p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-    }
-
-    .cta {
+    .shop-card a {
+      display: inline-block;
+      padding: 0.5rem 1rem;
       background: #2980b9;
       color: white;
-      padding: 0.75rem 1.5rem;
       text-decoration: none;
-      border-radius: 5px;
+      border-radius: 6px;
       transition: background 0.3s;
     }
 
-    .cta:hover {
+    .shop-card a:hover {
       background: #3498db;
-    }
-
-    .features {
-      display: flex;
-      justify-content: space-around;
-      padding: 2rem;
-      background: white;
-      flex-wrap: wrap;
-    }
-
-    .feature {
-      width: 300px;
-      margin: 1rem;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     footer {
       text-align: center;
-      padding: 1rem;
+      padding: 1.5rem;
       background: #2c3e50;
       color: white;
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
+
   <header>
-    <div class="logo">Woodpark Sales</div>
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">Products</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </nav>
+    <h1>Woodpark Sales</h1>
+    <p>Your Hub for All Things Woodpark</p>
   </header>
 
-  <section class="hero">
-    <h1>Supplying Your Business, One Delivery at a Time</h1>
-    <p>Woodpark Sales provides high-quality office and industrial supplies for companies of all sizes.</p>
-    <a href="#" class="cta">Shop Now</a>
+  <section class="intro">
+    <p>Welcome to Woodpark Sales – the business hub connecting all our unique stores and experiences. Whether you're shopping for slushies, holiday magic, or general goods, we’ve got you covered.</p>
   </section>
 
-  <section class="features">
-    <div class="feature">
-      <h2>Bulk Discounts</h2>
-      <p>Get better pricing when you order more. Perfect for growing businesses.</p>
+  <section class="shop-list">
+    <div class="shop-card">
+      <h2>Woodpark Shop 🛍️</h2>
+      <p>General goods, cool finds, and everything in between.</p>
+      <a href="#">Visit Shop</a>
     </div>
-    <div class="feature">
-      <h2>Fast Delivery</h2>
-      <p>We ship nationwide with next-day delivery options.</p>
+
+    <div class="shop-card">
+      <h2>Slushie Shack 🧃</h2>
+      <p>Ice-cold slushies and snacks for every season.</p>
+      <a href="#">Check It Out</a>
     </div>
-    <div class="feature">
-      <h2>Trusted Quality</h2>
-      <p>Top-rated products from the brands you trust.</p>
+
+    <div class="shop-card">
+      <h2>Christmas Market 🎄</h2>
+      <p>Holiday vibes, festive gifts, and winter wonder.</p>
+      <a href="#">Explore</a>
     </div>
   </section>
 
   <footer>
     <p>&copy; 2025 Woodpark Sales. All rights reserved.</p>
   </footer>
+
 </body>
 </html>
