@@ -63,9 +63,9 @@
         // Initialize Auth0 client
         async function createAuth0Client() {
             auth0Client = await createAuth0Client({
-                domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Replace with your Auth0 domain
-                client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Replace with your Auth0 Client ID
-                redirect_uri: window.location.href  // Redirect URI (make sure it's in Auth0's Allowed Callback URLs)
+                domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Your Auth0 domain
+                client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Your Auth0 Client ID
+                redirect_uri: window.location.href  // Use current page (admin.html) as redirect URI
             });
 
             // Check if the user is authenticated
@@ -90,7 +90,7 @@
         // Logout function
         async function logout() {
             await auth0Client.logout({
-                returnTo: window.location.href // Redirect after logout
+                returnTo: window.location.href  // Redirect after logout
             });
             document.getElementById('admin-dashboard').style.display = 'none';
             document.getElementById('login-modal').style.display = 'flex';
