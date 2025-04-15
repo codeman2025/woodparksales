@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Auth0 Test</title>
+  <meta charset="UTF-8">
+  <title>Auth0 Login Test</title>
   <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.0.4"></script>
 </head>
 <body>
-  <h1>Auth0 Test</h1>
+  <h1>Woodpark Sales Admin</h1>
   <button id="login-btn">Login</button>
 
   <script>
@@ -19,35 +18,24 @@
       redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
     };
 
-    const init = async () => {
-      try {
-        auth0 = await createAuth0Client(config);
-        console.log("✅ Auth0 client initialized");
+    const initAuth0 = async () => {
+      auth0 = await createAuth0Client(config);
+      const isAuthenticated = await auth0.isAuthenticated();
 
-        const isAuth = await auth0.isAuthenticated();
-
-        if (isAuth) {
-          const user = await auth0.getUser();
-          document.body.innerHTML = `<h2>Welcome ${user.name}!</h2>`;
-        } else {
-          const query = window.location.search;
-          if (query.includes("code=") && query.includes("state=")) {
-            await auth0.handleRedirectCallback();
-            window.history.replaceState({}, document.title, "/woodparksales/admin.html");
-            const user = await auth0.getUser();
-            document.body.innerHTML = `<h2>Welcome ${user.name}!</h2>`;
-          }
-        }
-      } catch (err) {
-        console.error("❌ Auth0 error", err);
+      if (isAuthenticated) {
+        const user = await auth0.getUser();
+        document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
+      } else if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+        await auth0.handleRedirectCallback();
+        window.history.replaceState({}, document.title, "/woodparksales/admin.html");
+        const user = await auth0.getUser();
+        document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
       }
     };
 
     window.onload = async () => {
-      await init();
-
-      const btn = document.getElementById("login-btn");
-      btn.addEventListener("click", async () => {
+      await initAuth0();
+      document.getElementById("login-btn").addEventListener("click", async () => {
         await auth0.loginWithRedirect();
       });
     };
