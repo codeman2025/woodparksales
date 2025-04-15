@@ -1,186 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel - Woodpark Sales</title>
-  <style>
-    /* Basic styling for the page */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    body {
-      background: #f0f2f5;
-      color: #333;
-      overflow: hidden;
-    }
-
-    /* Modal Login */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 1000;
-    }
-
-    .modal .login-box {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal .login-box h2 {
-      margin-bottom: 1rem;
-    }
-
-    .modal .login-box button {
-      width: 100%;
-      padding: 0.8rem;
-      background: #2980b9;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .modal .login-box button:hover {
-      background: #3498db;
-    }
-
-    /* Admin Dashboard (hidden until login) */
-    .admin-dashboard {
-      display: none;
-      padding: 2rem;
-    }
-
-    .admin-header {
-      background: #1a252f;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-    }
-
-    .section {
-      margin-bottom: 2rem;
-    }
-
-    .section h3 {
-      font-size: 1.5rem;
-      color: #333;
-    }
-
-    .section button {
-      padding: 0.5rem 1rem;
-      background: #e67e22;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .section button:hover {
-      background: #d35400;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodpark Sales Admin</title>
+    <!-- Include Auth0.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #login-modal {
+            display: none;
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #admin-dashboard {
+            display: none;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Modal Login (Inescapable) -->
-  <div id="login-modal" class="modal">
-    <div class="login-box">
-      <h2>Admin Login</h2>
-      <button onclick="login()">Login with Auth0</button>
-    </div>
-  </div>
-
-  <!-- Admin Dashboard (hidden until login) -->
-  <div id="admin-dashboard" class="admin-dashboard">
-    <div class="admin-header">
-      <h2>Woodpark Sales Admin Dashboard</h2>
+    <!-- Modal for login -->
+    <div id="login-modal">
+        <div class="modal-content">
+            <h2>Please Log In</h2>
+            <button id="login-btn">Login with Auth0</button>
+        </div>
     </div>
 
-    <!-- Manage Shops Section -->
-    <div class="section">
-      <h3>Manage Shops</h3>
-      <button onclick="alert('Redirect to Shop Management')">Edit Shops</button>
-      <button onclick="alert('Add New Shop')">Add New Shop</button>
+    <!-- Admin Dashboard (shown after login) -->
+    <div id="admin-dashboard">
+        <h1>Welcome to Woodpark Sales Admin</h1>
+        <p>You are logged in!</p>
+        <button id="logout-btn">Log Out</button>
     </div>
 
-    <!-- Manage Products Section -->
-    <div class="section">
-      <h3>Manage Products</h3>
-      <button onclick="alert('Edit Products')">Edit Products</button>
-      <button onclick="alert('Add New Product')">Add New Product</button>
-    </div>
+    <script>
+        let auth0Client = null;
 
-    <!-- General Settings Section -->
-    <div class="section">
-      <h3>Settings</h3>
-      <button onclick="alert('Change Site Settings')">Change Site Settings</button>
-    </div>
+        // Initialize Auth0 client
+        async function createAuth0Client() {
+            auth0Client = await createAuth0Client({
+                domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Replace with your Auth0 domain
+                client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Replace with your Auth0 Client ID
+                redirect_uri: window.location.href  // Redirect URI (make sure it's in Auth0's Allowed Callback URLs)
+            });
 
-    <!-- Logout Section -->
-    <div class="section">
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
+            // Check if the user is authenticated
+            const isAuthenticated = await auth0Client.isAuthenticated();
+            if (isAuthenticated) {
+                const user = await auth0Client.getUser();
+                console.log('Logged in as:', user.email);
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+            } else {
+                // If not authenticated, show the login modal
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
 
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa.min.js"></script>
-  <script>
-    let auth0Client = null;
+        // Login function
+        async function login() {
+            console.log('Login button clicked!');
+            await auth0Client.loginWithRedirect();
+        }
 
-    // Initialize Auth0 client
-    async function createAuth0Client() {
-      auth0Client = await createAuth0Client({
-        domain: "dev-6453t5hgvy6phl8o.us.auth0.com",    // Replace with your Auth0 domain
-        client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",    // Replace with your Auth0 Client ID
-        redirect_uri: window.location.href,  // Redirect URI after login
-      });
-    }
+        // Logout function
+        async function logout() {
+            await auth0Client.logout({
+                returnTo: window.location.href // Redirect after logout
+            });
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('login-modal').style.display = 'flex';
+        }
 
-    // Login function (calls Auth0's login)
-    async function login() {
-      await auth0Client.loginWithRedirect();
-    }
+        // Initialize the Auth0 client on page load
+        window.onload = async () => {
+            await createAuth0Client();
+        };
 
-    // Check if we are returning from the login process and handle it
-    async function handleRedirectCallback() {
-      const result = await auth0Client.handleRedirectCallback();
-      const user = await auth0Client.getUser();
-      console.log('Logged in as:', user.email);
-      document.getElementById('login-modal').style.display = 'none';  // Hide modal
-      document.getElementById('admin-dashboard').style.display = 'block';  // Show dashboard
-    }
+        // Attach the login function to the login button
+        document.getElementById('login-btn').addEventListener('click', login);
 
-    // Logout function (calls Auth0's logout)
-    async function logout() {
-      await auth0Client.logout({
-        returnTo: window.location.href, // After logout, redirect back to the login page
-      });
-    }
-
-    // When the page loads, initialize the Auth0 client
-    window.onload = async () => {
-      await createAuth0Client();
-      if (window.location.search.includes('code=')) {
-        await handleRedirectCallback();
-      }
-    };
-  </script>
+        // Attach the logout function to the logout button
+        document.getElementById('logout-btn').addEventListener('click', logout);
+    </script>
 
 </body>
 </html>
-
