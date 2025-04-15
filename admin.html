@@ -1,51 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Woodpark Sales Admin</title>
-    <!-- Include Auth0.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Woodpark Sales Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js"></script>
 </head>
 <body>
-    <h1>Woodpark Sales Admin</h1>
-    <button id="login-btn">Login with Auth0</button>
+  <h1>Woodpark Sales Admin</h1>
+  <button id="login-btn">Login with Auth0</button>
 
-    <script>
-        let auth0Client = null;
+  <script>
+    let auth0Client = null;
 
-        // Initialize Auth0 client
-        async function createAuth0Client() {
-            try {
-                auth0Client = await createAuth0Client({
-                    domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Your Auth0 domain
-                    client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Your Auth0 Client ID
-                    redirect_uri: window.location.href  // Redirect URI set to the current page
-                });
+    async function createClient() {
+      auth0Client = await createAuth0Client({
+        domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
+        client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
+        redirect_uri: window.location.href
+      });
 
-                console.log("Auth0 client initialized successfully.");
-            } catch (error) {
-                console.error('Error initializing Auth0 client:', error);
-            }
-        }
+      console.log("✅ Auth0 ready");
+    }
 
-        // Login function
-        async function login() {
-            try {
-                console.log('Login initiated');
-                await auth0Client.loginWithRedirect();
-            } catch (error) {
-                console.error('Error during login:', error);
-            }
-        }
+    async function login() {
+      console.log("🔐 Login button clicked");
+      await auth0Client.loginWithRedirect();
+    }
 
-        // Onload function
-        window.onload = async () => {
-            await createAuth0Client();
-
-            // Attach login function to button click
-            document.getElementById('login-btn').addEventListener('click', login);
-        };
-    </script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      await createClient();
+      document.getElementById('login-btn').addEventListener('click', login);
+    });
+  </script>
 </body>
 </html>
