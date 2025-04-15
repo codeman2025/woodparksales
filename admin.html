@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Woodpark Admin</title>
+
+  <!-- ✅ Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-X12XYY14J4');
+  </script>
+
+  <!-- ✅ Styles -->
   <style>
     :root {
       --bg: #0d1117;
@@ -89,47 +100,21 @@
 
     #admin-panel {
       display: none;
-      height: 100vh;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 220px;
-      background-color: var(--panel);
-      border-right: 1px solid var(--input-border);
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-
-    .sidebar h3 {
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-
-    .sidebar button {
-      display: block;
-      width: 100%;
-      margin-bottom: 0.5rem;
-      background: none;
-      border: 1px solid var(--input-border);
-      color: var(--text);
-      text-align: left;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: var(--radius);
-    }
-
-    .sidebar button:hover {
-      background-color: var(--input-border);
-    }
-
-    .main-content {
-      flex: 1;
       padding: 2rem;
     }
 
+    #admin-panel h1 {
+      color: var(--accent);
+      font-size: 1.6rem;
+    }
+
+    #admin-panel p {
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
     #logout-btn {
-      margin-top: 2rem;
       background-color: var(--danger);
     }
 
@@ -137,16 +122,16 @@
       background-color: #cc4444;
     }
 
-    @media (max-width: 600px) {
-      .sidebar {
-        display: none;
+    @media (max-width: 500px) {
+      #login-box {
+        padding: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Login Modal -->
+  <!-- 🔒 Login Modal -->
   <div id="login-modal">
     <div id="login-box">
       <h2>Admin Login</h2>
@@ -159,31 +144,24 @@
     </div>
   </div>
 
-  <!-- Admin Panel -->
+  <!-- 👨‍💻 Admin Panel -->
   <div id="admin-panel">
-    <div class="sidebar">
-      <h3>Shops</h3>
-      <button onclick="loadShop('Woodpark Slushie Shack')">🥤 Slushie Shack</button>
-      <button onclick="loadShop('Woodpark Christmas Market')">🎄 Christmas Market</button>
-      <button onclick="loadShop('Woodpark Shop')">🛍️ Woodpark Shop</button>
-      <button id="logout-btn">Logout</button>
-    </div>
-    <div class="main-content">
-      <h1 id="shop-title">Welcome to the Admin Panel</h1>
-      <p id="shop-content">Select a shop from the sidebar to begin managing.</p>
-    </div>
+    <h1>Welcome to the Admin Panel</h1>
+    <p>This is where you manage your Woodpark shops.</p>
+    <button id="logout-btn">Logout</button>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- 🔥 Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
 
+  <!-- 🔐 Firebase Auth Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
       authDomain: "woodpark-sales-admin-login.firebaseapp.com",
       projectId: "woodpark-sales-admin-login",
-      storageBucket: "woodpark-sales-admin-login.firebasestorage.app",
+      storageBucket: "woodpark-sales-admin-login.appspot.com",
       messagingSenderId: "459986819604",
       appId: "1:459986819604:web:1518c70666bb2c89906501",
       measurementId: "G-MXTHWSKKMZ"
@@ -195,7 +173,7 @@
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'flex';
+        document.getElementById('admin-panel').style.display = 'block';
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
@@ -218,11 +196,6 @@
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
     });
-
-    function loadShop(name) {
-      document.getElementById('shop-title').textContent = name;
-      document.getElementById('shop-content').textContent = `You're now managing "${name}". This area will show orders, products, and stats in the future.`;
-    }
   </script>
 
 </body>
