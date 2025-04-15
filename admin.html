@@ -1,16 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Auth0 Login Test</title>
+  <meta charset="UTF-8" />
+  <title>Woodpark Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.0.4"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    #log {
+      margin-top: 2rem;
+      text-align: left;
+      max-width: 500px;
+      margin-inline: auto;
+      padding: 1rem;
+      background: #f1f1f1;
+      border-radius: 10px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
   <h1>Woodpark Sales Admin</h1>
-  <button id="login-btn">Login</button>
+  <button id="login-btn">Login with Auth0</button>
+  <div id="log"></div>
 
   <script>
     let auth0 = null;
+    const logBox = document.getElementById("log");
+
+    function log(message, error = false) {
+      const p = document.createElement("p");
+      p.textContent = message;
+      if (error) p.style.color = "red";
+      logBox.appendChild(p);
+    }
 
     const config = {
       domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
@@ -19,25 +46,47 @@
     };
 
     const initAuth0 = async () => {
-      auth0 = await createAuth0Client(config);
-      const isAuthenticated = await auth0.isAuthenticated();
+      try {
+        auth0 = await createAuth0Client(config);
+        log("✅ Auth0 client initialized");
 
-      if (isAuthenticated) {
-        const user = await auth0.getUser();
-        document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
-      } else if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-        await auth0.handleRedirectCallback();
-        window.history.replaceState({}, document.title, "/woodparksales/admin.html");
-        const user = await auth0.getUser();
-        document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
+        const isAuthenticated = await auth0.isAuthenticated();
+        log("🔐 Authenticated: " + isAuthenticated);
+
+        if (isAuthenticated) {
+          const user = await auth0.getUser();
+          log("👤 Logged in as: " + (user.name || user.email));
+          document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
+        } else if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+          log("🔁 Handling redirect callback...");
+          await auth0.handleRedirectCallback();
+          window.history.replaceState({}, document.title, "/woodparksales/admin.html");
+
+          const user = await auth0.getUser();
+          log("👤 Logged in after redirect as: " + (user.name || user.email));
+          document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
+        }
+      } catch (err) {
+        log("❌ Error initializing Auth0: " + err.message, true);
       }
     };
 
     window.onload = async () => {
       await initAuth0();
-      document.getElementById("login-btn").addEventListener("click", async () => {
-        await auth0.loginWithRedirect();
-      });
+
+      const btn = document.getElementById("login-btn");
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          log("👉 Login button clicked");
+          try {
+            await auth0.loginWithRedirect();
+          } catch (e) {
+            log("❌ Login failed: " + e.message, true);
+          }
+        });
+      } else {
+        log("❌ Login button not found", true);
+      }
     };
   </script>
 </body>
