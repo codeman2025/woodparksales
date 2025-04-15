@@ -8,26 +8,57 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 2rem;
+      margin: 0;
+      padding: 0;
     }
+
+    #login-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #login-btn {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #00aaff;
+      color: white;
+      cursor: pointer;
+    }
+
     #log {
       margin-top: 2rem;
       text-align: left;
       max-width: 500px;
       margin-inline: auto;
       padding: 1rem;
-      background: #f1f1f1;
-      border-radius: 10px;
       font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <h1>Woodpark Sales Admin</h1>
-  <button id="login-btn">Login with Auth0</button>
-  <div id="log"></div>
+  <div id="login-modal">
+    <h1>Admin Login Required</h1>
+    <button id="login-btn">Login with Auth0</button>
+    <div id="log"></div>
+  </div>
 
-  <script>
+  <main id="admin-content" style="display:none; padding: 2rem;">
+    <h2>Welcome to the Woodpark Admin Dashboard</h2>
+    <p>🎉 You are successfully logged in.</p>
+    <!-- Your admin content here -->
+  </main>
+
+  <script type="module">
     const logBox = document.getElementById("log");
     function log(msg, error = false) {
       const p = document.createElement("p");
@@ -36,84 +67,43 @@
       logBox.appendChild(p);
     }
 
-    const config = {
-      domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
-      client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
-      redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
-    };
+    import("https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.esm.js").then(async (auth0lib) => {
+      log("✅ Auth0 module loaded");
 
-    let auth0 = null;
+      const config = {
+        domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
+        client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
+        redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
+      };
 
-    function waitForAuth0Client(callback) {
-      const interval = setInterval(() => {
-        if (window.createAuth0Client) {
-          clearInterval(interval);
-          callback();
-        } else {
-          log("⏳ Waiting for Auth0 script...");
-        }
-      }, 500);
-    }
+      let auth0 = await auth0lib.createAuth0Client(config);
+      log("✅ Auth0 client initialized");
 
-    function setupLoginHandler() {
-      const btn = document.getElementById("login-btn");
-      if (btn) {
-        btn.addEventListener("click", async () => {
-          log("👉 Login button clicked");
-          if (!auth0) {
-            log("❌ Auth0 client not ready", true);
-            return;
-          }
-          try {
-            await auth0.loginWithRedirect();
-          } catch (e) {
-            log("❌ Login failed: " + e.message, true);
-          }
-        });
-      } else {
-        log("❌ Login button not found", true);
+      // Handle login redirect
+      if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+        log("🔁 Handling redirect callback...");
+        await auth0.handleRedirectCallback();
+        window.history.replaceState({}, document.title, "/woodparksales/admin.html");
       }
-    }
 
-    async function initAuth0() {
-      try {
-        auth0 = await createAuth0Client(config);
-        log("✅ Auth0 client initialized");
+      const isAuthenticated = await auth0.isAuthenticated();
+      log("🔐 Authenticated: " + isAuthenticated);
 
-        const isAuthenticated = await auth0.isAuthenticated();
-        log("🔐 Authenticated: " + isAuthenticated);
-
-        if (isAuthenticated) {
-          const user = await auth0.getUser();
-          log("👤 Logged in as: " + (user.name || user.email));
-          document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
-        } else if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-          log("🔁 Handling redirect callback...");
-          await auth0.handleRedirectCallback();
-          window.history.replaceState({}, document.title, "/woodparksales/admin.html");
-
-          const user = await auth0.getUser();
-          document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
-        }
-      } catch (err) {
-        log("❌ Error initializing Auth0: " + err.message, true);
+      if (isAuthenticated) {
+        const user = await auth0.getUser();
+        log("👤 Logged in as: " + (user.name || user.email));
+        document.getElementById("login-modal").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
       }
-    }
 
-    // Load Auth0 script dynamically
-    const auth0Script = document.createElement("script");
-    auth0Script.src = "https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js";
-    auth0Script.onload = () => {
-      log("✅ Auth0 script loaded");
-      waitForAuth0Client(async () => {
-        await initAuth0();
-        setupLoginHandler();
+      document.getElementById("login-btn").addEventListener("click", async () => {
+        log("👉 Login button clicked");
+        await auth0.loginWithRedirect();
       });
-    };
-    auth0Script.onerror = () => {
-      log("❌ Failed to load Auth0 script", true);
-    };
-    document.head.appendChild(auth0Script);
+
+    }).catch((err) => {
+      log("❌ Auth0 module failed to load: " + err.message, true);
+    });
   </script>
 </body>
 </html>
