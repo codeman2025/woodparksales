@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Woodpark Admin Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -29,12 +28,10 @@
   <div id="log"></div>
 
   <script>
-    let auth0 = null;
     const logBox = document.getElementById("log");
-
-    function log(message, error = false) {
+    function log(msg, error = false) {
       const p = document.createElement("p");
-      p.textContent = message;
+      p.textContent = msg;
       if (error) p.style.color = "red";
       logBox.appendChild(p);
     }
@@ -45,7 +42,40 @@
       redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
     };
 
-    const initAuth0 = async () => {
+    let auth0 = null;
+
+    function waitForAuth0Client(callback) {
+      const interval = setInterval(() => {
+        if (window.createAuth0Client) {
+          clearInterval(interval);
+          callback();
+        } else {
+          log("⏳ Waiting for Auth0 script...");
+        }
+      }, 500);
+    }
+
+    function setupLoginHandler() {
+      const btn = document.getElementById("login-btn");
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          log("👉 Login button clicked");
+          if (!auth0) {
+            log("❌ Auth0 client not ready", true);
+            return;
+          }
+          try {
+            await auth0.loginWithRedirect();
+          } catch (e) {
+            log("❌ Login failed: " + e.message, true);
+          }
+        });
+      } else {
+        log("❌ Login button not found", true);
+      }
+    }
+
+    async function initAuth0() {
       try {
         auth0 = await createAuth0Client(config);
         log("✅ Auth0 client initialized");
@@ -63,31 +93,27 @@
           window.history.replaceState({}, document.title, "/woodparksales/admin.html");
 
           const user = await auth0.getUser();
-          log("👤 Logged in after redirect as: " + (user.name || user.email));
           document.body.innerHTML = `<h2>Welcome ${user.name || user.email}!</h2>`;
         }
       } catch (err) {
         log("❌ Error initializing Auth0: " + err.message, true);
       }
-    };
+    }
 
-    window.onload = async () => {
-      await initAuth0();
-
-      const btn = document.getElementById("login-btn");
-      if (btn) {
-        btn.addEventListener("click", async () => {
-          log("👉 Login button clicked");
-          try {
-            await auth0.loginWithRedirect();
-          } catch (e) {
-            log("❌ Login failed: " + e.message, true);
-          }
-        });
-      } else {
-        log("❌ Login button not found", true);
-      }
+    // Load Auth0 script dynamically
+    const auth0Script = document.createElement("script");
+    auth0Script.src = "https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js";
+    auth0Script.onload = () => {
+      log("✅ Auth0 script loaded");
+      waitForAuth0Client(async () => {
+        await initAuth0();
+        setupLoginHandler();
+      });
     };
+    auth0Script.onerror = () => {
+      log("❌ Failed to load Auth0 script", true);
+    };
+    document.head.appendChild(auth0Script);
   </script>
 </body>
 </html>
