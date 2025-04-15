@@ -1,37 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Woodpark Sales Admin</title>
-  <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auth0 Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2.0.4"></script>
 </head>
 <body>
-  <h1>Woodpark Sales Admin</h1>
-  <button id="login-btn">Login with Auth0</button>
+  <h1>Auth0 Test</h1>
+  <button id="login-btn">Login</button>
 
   <script>
-    let auth0Client = null;
+    let auth0 = null;
 
-    async function createClient() {
-      auth0Client = await createAuth0Client({
-        domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
-        client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
-        redirect_uri: window.location.href
+    const config = {
+      domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
+      client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
+      redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
+    };
+
+    const init = async () => {
+      try {
+        auth0 = await createAuth0Client(config);
+        console.log("✅ Auth0 client initialized");
+
+        const isAuth = await auth0.isAuthenticated();
+
+        if (isAuth) {
+          const user = await auth0.getUser();
+          document.body.innerHTML = `<h2>Welcome ${user.name}!</h2>`;
+        } else {
+          const query = window.location.search;
+          if (query.includes("code=") && query.includes("state=")) {
+            await auth0.handleRedirectCallback();
+            window.history.replaceState({}, document.title, "/woodparksales/admin.html");
+            const user = await auth0.getUser();
+            document.body.innerHTML = `<h2>Welcome ${user.name}!</h2>`;
+          }
+        }
+      } catch (err) {
+        console.error("❌ Auth0 error", err);
+      }
+    };
+
+    window.onload = async () => {
+      await init();
+
+      const btn = document.getElementById("login-btn");
+      btn.addEventListener("click", async () => {
+        await auth0.loginWithRedirect();
       });
-
-      console.log("✅ Auth0 ready");
-    }
-
-    async function login() {
-      console.log("🔐 Login button clicked");
-      await auth0Client.loginWithRedirect();
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      await createClient();
-      document.getElementById('login-btn').addEventListener('click', login);
-    });
+    };
   </script>
 </body>
 </html>
