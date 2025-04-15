@@ -67,43 +67,55 @@
       logBox.appendChild(p);
     }
 
-    import("https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.esm.js").then(async (auth0lib) => {
-      log("✅ Auth0 module loaded");
+    log("📦 Loading Auth0 module...");
 
-      const config = {
-        domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
-        client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
-        redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
-      };
+    // Direct CDN to load Auth0
+    const auth0Script = document.createElement("script");
+    auth0Script.src = "https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.esm.js";
+    auth0Script.onload = async () => {
+      log("✅ Auth0 script loaded");
 
-      let auth0 = await auth0lib.createAuth0Client(config);
-      log("✅ Auth0 client initialized");
+      try {
+        const auth0 = await createAuth0Client({
+          domain: "dev-6453t5hgvy6phl8o.us.auth0.com",
+          client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",
+          redirect_uri: "https://codeman2025.github.io/woodparksales/admin.html"
+        });
 
-      // Handle login redirect
-      if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-        log("🔁 Handling redirect callback...");
-        await auth0.handleRedirectCallback();
-        window.history.replaceState({}, document.title, "/woodparksales/admin.html");
+        log("✅ Auth0 client initialized");
+
+        // Handle login redirect
+        if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+          log("🔁 Handling redirect callback...");
+          await auth0.handleRedirectCallback();
+          window.history.replaceState({}, document.title, "/woodparksales/admin.html");
+        }
+
+        const isAuthenticated = await auth0.isAuthenticated();
+        log("🔐 Authenticated: " + isAuthenticated);
+
+        if (isAuthenticated) {
+          const user = await auth0.getUser();
+          log("👤 Logged in as: " + (user.name || user.email));
+          document.getElementById("login-modal").style.display = "none";
+          document.getElementById("admin-content").style.display = "block";
+        }
+
+        document.getElementById("login-btn").addEventListener("click", async () => {
+          log("👉 Login button clicked");
+          await auth0.loginWithRedirect();
+        });
+
+      } catch (err) {
+        log("❌ Auth0 initialization failed: " + err.message, true);
       }
+    };
 
-      const isAuthenticated = await auth0.isAuthenticated();
-      log("🔐 Authenticated: " + isAuthenticated);
+    auth0Script.onerror = () => {
+      log("❌ Failed to load Auth0 script", true);
+    };
 
-      if (isAuthenticated) {
-        const user = await auth0.getUser();
-        log("👤 Logged in as: " + (user.name || user.email));
-        document.getElementById("login-modal").style.display = "none";
-        document.getElementById("admin-content").style.display = "block";
-      }
-
-      document.getElementById("login-btn").addEventListener("click", async () => {
-        log("👉 Login button clicked");
-        await auth0.loginWithRedirect();
-      });
-
-    }).catch((err) => {
-      log("❌ Auth0 module failed to load: " + err.message, true);
-    });
+    document.head.appendChild(auth0Script);
   </script>
 </body>
 </html>
