@@ -6,107 +6,46 @@
     <title>Woodpark Sales Admin</title>
     <!-- Include Auth0.js -->
     <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #login-modal {
-            display: none;
-            background: rgba(0, 0, 0, 0.5);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        #admin-dashboard {
-            display: none;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-
-    <!-- Modal for login -->
-    <div id="login-modal">
-        <div class="modal-content">
-            <h2>Please Log In</h2>
-            <button id="login-btn">Login with Auth0</button>
-        </div>
-    </div>
-
-    <!-- Admin Dashboard (shown after login) -->
-    <div id="admin-dashboard">
-        <h1>Welcome to Woodpark Sales Admin</h1>
-        <p>You are logged in!</p>
-        <button id="logout-btn">Log Out</button>
-    </div>
+    <h1>Woodpark Sales Admin</h1>
+    <button id="login-btn">Login with Auth0</button>
 
     <script>
         let auth0Client = null;
 
         // Initialize Auth0 client
         async function createAuth0Client() {
-            auth0Client = await createAuth0Client({
-                domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Your Auth0 domain
-                client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Your Auth0 Client ID
-                redirect_uri: window.location.href  // Use current page (admin.html) as redirect URI
-            });
+            try {
+                auth0Client = await createAuth0Client({
+                    domain: "dev-6453t5hgvy6phl8o.us.auth0.com",  // Your Auth0 domain
+                    client_id: "BuK8FBsWE3xhRB9HCAZaaXFY4BlJufW4",  // Your Auth0 Client ID
+                    redirect_uri: window.location.href  // Redirect URI set to the current page
+                });
 
-            // Check if the user is authenticated
-            const isAuthenticated = await auth0Client.isAuthenticated();
-            if (isAuthenticated) {
-                const user = await auth0Client.getUser();
-                console.log('Logged in as:', user.email);
-                document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('admin-dashboard').style.display = 'block';
-            } else {
-                // If not authenticated, show the login modal
-                document.getElementById('login-modal').style.display = 'flex';
+                console.log("Auth0 client initialized successfully.");
+            } catch (error) {
+                console.error('Error initializing Auth0 client:', error);
             }
         }
 
         // Login function
         async function login() {
-            console.log('Login button clicked!');
-            await auth0Client.loginWithRedirect();
+            try {
+                console.log('Login initiated');
+                await auth0Client.loginWithRedirect();
+            } catch (error) {
+                console.error('Error during login:', error);
+            }
         }
 
-        // Logout function
-        async function logout() {
-            await auth0Client.logout({
-                returnTo: window.location.href  // Redirect after logout
-            });
-            document.getElementById('admin-dashboard').style.display = 'none';
-            document.getElementById('login-modal').style.display = 'flex';
-        }
-
-        // Initialize the Auth0 client on page load
+        // Onload function
         window.onload = async () => {
             await createAuth0Client();
+
+            // Attach login function to button click
+            document.getElementById('login-btn').addEventListener('click', login);
         };
-
-        // Attach the login function to the login button
-        document.getElementById('login-btn').addEventListener('click', login);
-
-        // Attach the logout function to the logout button
-        document.getElementById('logout-btn').addEventListener('click', logout);
     </script>
-
 </body>
 </html>
