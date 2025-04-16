@@ -149,6 +149,32 @@
         padding: 1.2rem;
       }
     }
+
+    #order-dashboard {
+      margin-top: 40px;
+      font-family: Arial, sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .done-checkbox {
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -176,142 +202,144 @@
       <button onclick="window.open('https://codeman2025.github.io/woodparksales/slushiepicker.html', '_blank')">Firebase Console</button>
     </div>
 
-    <!-- Orders Table -->
-    <div id="order-dashboard" style="margin-top: 40px; font-family: Arial, sans-serif;">
+    <div id="order-dashboard">
       <h2 style="text-align: center;">Slushie Orders</h2>
       <div id="ordersTableWrapper" style="overflow-x: auto;">
-        <table id="ordersTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <table id="ordersTable">
           <thead>
-            <tr style="background-color: #3498db; color: white;">
-              <th style="padding: 10px; border: 1px solid #ccc;">Date</th>
-              <th style="padding: 10px; border: 1px solid #ccc;">Size</th>
-              <th style="padding: 10px; border: 1px solid #ccc;">Flavors</th>
-              <th style="padding: 10px; border: 1px solid #ccc;">Price</th>
-              <th style="padding: 10px; border: 1px solid #ccc;">Done</th>
-              <th style="padding: 10px; border: 1px solid #ccc;">Delete</th>
+            <tr>
+              <th>Date</th>
+              <th>Size</th>
+              <th>Flavors</th>
+              <th>Price</th>
+              <th>Done</th>
             </tr>
           </thead>
           <tbody id="ordersBody">
-            <tr><td colspan="6" style="text-align:center; padding: 20px;">Loading...</td></tr>
+            <tr><td colspan="5" style="text-align:center; padding: 20px;">Loading...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
-      import { getFirestore, collection, getDocs, query, orderBy, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
-        authDomain: "slushiepicker.firebaseapp.com",
-        projectId: "slushiepicker",
-        storageBucket: "slushiepicker.firebasestorage.app",
-        messagingSenderId: "753485351126",
-        appId: "1:753485351126:web:9696c75375fc212f6de177",
-        measurementId: "G-C0TTW8CDCF"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-
-      async function loadOrders() {
-        const ordersBody = document.getElementById("ordersBody");
-        ordersBody.innerHTML = "";
-
-        try {
-          const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
-          const snapshot = await getDocs(q);
-
-          if (snapshot.empty) {
-            ordersBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 20px;'>No orders found.</td></tr>";
-            return;
-          }
-
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const row = document.createElement("tr");
-
-            const date = data.timestamp?.toDate().toLocaleString() || "Unknown";
-            const flavors = (data.flavors || []).join(", ");
-
-            row.innerHTML = `
-              <td style="padding: 10px; border: 1px solid #ccc;">${date}</td>
-              <td style="padding: 10px; border: 1px solid #ccc;">${data.size}</td>
-              <td style="padding: 10px; border: 1px solid #ccc;">${flavors}</td>
-              <td style="padding: 10px; border: 1px solid #ccc;">€${data.price}</td>
-              <td style="padding: 10px; border: 1px solid #ccc;">
-                <input type="checkbox" class="done-toggle" ${data.done ? 'checked' : ''} data-id="${doc.id}" />
-              </td>
-              <td style="padding: 10px; border: 1px solid #ccc;">
-                <button class="delete-btn" data-id="${doc.id}">Delete</button>
-              </td>
-            `;
-            ordersBody.appendChild(row);
-          });
-
-          // Add event listeners for toggle and delete buttons
-          document.querySelectorAll(".done-toggle").forEach(toggle => {
-            toggle.addEventListener("change", async (e) => {
-              const orderId = e.target.getAttribute("data-id");
-              const orderRef = doc(db, "orders", orderId);
-              await updateDoc(orderRef, {
-                done: e.target.checked
-              });
-            });
-          });
-
-          document.querySelectorAll(".delete-btn").forEach(button => {
-            button.addEventListener("click", async (e) => {
-              const orderId = e.target.getAttribute("data-id");
-              const orderRef = doc(db, "orders", orderId);
-              await deleteDoc(orderRef);
-              loadOrders(); // Reload orders after deletion
-            });
-          });
-
-        } catch (err) {
-          console.error("Error loading orders:", err);
-          ordersBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 20px;'>Error loading orders.</td></tr>";
-        }
-      }
-
-      loadOrders();
-    </script>
-  </div>
-
-  <div>
-    <button id="logout-btn">Logout</button>
+    <div>
+      <button id="logout-btn">Logout</button>
+    </div>
   </div>
 
   <!-- 🔥 Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore-compat.js"></script>
 
   <!-- 🔐 Firebase Auth Logic -->
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
-      authDomain: "woodpark-sales-admin-login.firebaseapp.com",
-      projectId: "woodpark-sales-admin-login",
-      storageBucket: "woodpark-sales-admin-login.appspot.com",
-      messagingSenderId: "459986819604",
-      appId: "1:459986819604:web:1518c70666bb2c89906501",
-      measurementId: "G-MXTHWSKKMZ"
+      apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
+      authDomain: "slushiepicker.firebaseapp.com",
+      projectId: "slushiepicker",
+      storageBucket: "slushiepicker.firebasestorage.app",
+      messagingSenderId: "753485351126",
+      appId: "1:753485351126:web:9696c75375fc212f6de177",
+      measurementId: "G-C0TTW8CDCF"
     };
 
     firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
+        gtag('event', 'login', { method: 'email/password' });
       } else {
-        document.getElementById('login-modal').style.display = 'block';
+        document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
       }
     });
+
+    // Handle login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        console.error(error);
+        document.getElementById('error-message').textContent = error.message;
+        gtag('event', 'login_failed', {
+          method: 'email/password',
+          error: error.message
+        });
+      }
+    });
+
+    // Handle logout
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      auth.signOut();
+      gtag('event', 'logout', { method: 'email/password' });
+    });
+
+    // Load Orders from Firestore
+    async function loadOrders() {
+      const ordersBody = document.getElementById("ordersBody");
+      ordersBody.innerHTML = "";
+
+      try {
+        const snapshot = await db.collection("orders").orderBy("timestamp", "desc").get();
+
+        if (snapshot.empty) {
+          ordersBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding: 20px;'>No orders yet!</td></tr>";
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const order = doc.data();
+          const isDone = order.done || false;
+
+          const row = document.createElement("tr");
+          row.setAttribute("data-id", doc.id);
+          if (isDone) {
+            row.style.display = "none";
+          }
+
+          row.innerHTML = `
+            <td>${new Date(order.timestamp.seconds * 1000).toLocaleString()}</td>
+            <td>${order.size}</td>
+            <td>${order.flavors.join(", ")}</td>
+            <td>€${order.price}</td>
+            <td>
+              <label>
+                <input type="checkbox" class="done-checkbox" ${isDone ? "checked" : ""}>
+                Done
+              </label>
+            </td>
+          `;
+
+          // Add event listener for "Done" checkbox
+          row.querySelector(".done-checkbox").addEventListener("change", async (e) => {
+            const checked = e.target.checked;
+            await db.collection("orders").doc(doc.id).update({ done: checked });
+
+            // Hide row if checked
+            if (checked) {
+              row.style.display = "none";
+            } else {
+              row.style.display = "";
+            }
+          });
+
+          ordersBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error loading orders:", error);
+      }
+    }
+
+    // Load orders on page load
+    window.onload = loadOrders;
   </script>
 </body>
 </html>
