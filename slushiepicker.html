@@ -5,8 +5,126 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Slushie Picker</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- Font Awesome for icons -->
   <style>
-    /* Style remains unchanged */
+    /* Global Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #FFB6C1, #FFD700); /* Beautiful gradient background */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 3rem;
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+    }
+
+    label {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    select, button {
+      margin: 15px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      width: 100%;
+      background-color: #f4f6f8;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    select {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    .mixing {
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Icon styles */
+    select {
+      font-size: 16px;
+      color: #333;
+      padding-left: 35px;
+      background: url('https://img.icons8.com/ios/50/000000/fruit.png') no-repeat left center;
+      background-size: 25px;
+    }
+
+    button {
+      font-size: 18px;
+      padding-left: 35px;
+      background: url('https://img.icons8.com/ios/50/000000/circular-arrow.png') no-repeat left center;
+      background-size: 20px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+
+    #console {
+      background: #1e1e1e;
+      color: #00ff88;
+      font-family: monospace;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 14px;
+      height: 100px;
+      overflow-y: auto;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 450px;
+      box-sizing: border-box;
+    }
+
+    #console p {
+      margin: 0;
+    }
+
+    /* Animations */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -64,7 +182,6 @@
       const resultDiv = document.getElementById('result');
       const button = document.getElementById('mixButton');
 
-      // Disable button to prevent multiple clicks during processing
       button.disabled = true;
       button.classList.add("mixing");
       button.innerText = "Mixing...";
@@ -91,11 +208,7 @@
       const totalPrice = (basePrice + flavorCost).toFixed(2);
 
       try {
-        // Log data before adding to Firestore
-        logToConsole(`Attempting to add order: Flavors: ${selectedFlavors.join(", ")}, Size: ${size}, Price: €${totalPrice}`);
-
-        // Add order to Firestore
-        const docRef = await addDoc(collection(db, "orders"), {
+        await addDoc(collection(db, "orders"), {
           flavors: selectedFlavors,
           size: size,
           price: totalPrice,
@@ -103,14 +216,13 @@
         });
 
         resultDiv.innerHTML = `Your ${size} slushie: ${selectedFlavors.join(", ")}<br>Total price: €${totalPrice}<br><strong>Order Sent!</strong>`;
-        logToConsole(`✅ Order sent to Firestore with ID: ${docRef.id}`);
+        logToConsole(`✅ Order sent: €${totalPrice}, Size: ${size}, Flavors: ${selectedFlavors.join(", ")}`);
       } catch (err) {
         console.error(err);
         resultDiv.innerHTML = "Error sending order. Try again later.";
         logToConsole("❌ Error sending order: " + err.message);
       }
 
-      // Re-enable button after processing
       setTimeout(() => {
         button.disabled = false;
         button.classList.remove("mixing");
