@@ -63,12 +63,31 @@
     }
 
     button.mixing {
-      animation: spin 1s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    #console {
+      background: #1e1e1e;
+      color: #00ff88;
+      font-family: monospace;
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 13px;
+      height: 100px;
+      overflow-y: auto;
+      border-radius: 5px;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    #console p {
+      margin: 0;
     }
   </style>
 </head>
@@ -94,6 +113,8 @@
     <div id="result"></div>
   </div>
 
+  <div id="console"><p>Console ready...</p></div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
@@ -111,6 +132,14 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const logToConsole = (msg) => {
+      const consoleDiv = document.getElementById("console");
+      const p = document.createElement("p");
+      p.textContent = msg;
+      consoleDiv.appendChild(p);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    };
+
     document.getElementById('mixButton').addEventListener('click', async () => {
       const flavorSelect = document.getElementById('flavor');
       const sizeSelect = document.getElementById('size');
@@ -123,6 +152,15 @@
 
       const selectedFlavors = Array.from(flavorSelect.selectedOptions).map(opt => opt.text);
       const size = sizeSelect.value;
+
+      if (!size || selectedFlavors.length === 0) {
+        resultDiv.innerHTML = "Please select both size and at least one flavor.";
+        logToConsole("❌ Missing selection.");
+        button.disabled = false;
+        button.classList.remove("mixing");
+        button.innerText = "Mix It!";
+        return;
+      }
 
       let basePrice = 0;
       if (size === "small") basePrice = 2;
@@ -142,9 +180,11 @@
         });
 
         resultDiv.innerHTML = `Your ${size} slushie: ${selectedFlavors.join(", ")}<br>Total price: €${totalPrice}<br><strong>Order Sent!</strong>`;
+        logToConsole(`✅ Order sent: €${totalPrice}, Size: ${size}, Flavors: ${selectedFlavors.join(", ")}`);
       } catch (err) {
         console.error(err);
         resultDiv.innerHTML = "Error sending order. Try again later.";
+        logToConsole("❌ Error sending order: " + err.message);
       }
 
       setTimeout(() => {
