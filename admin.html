@@ -106,6 +106,11 @@
     #logout-btn:hover {
       background-color: #cc4444;
     }
+
+    .done {
+      background-color: #28a745;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -140,10 +145,11 @@
             <th>Size</th>
             <th>Flavors</th>
             <th>Price</th>
+            <th>Done</th>
           </tr>
         </thead>
         <tbody id="ordersBody">
-          <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+          <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -156,7 +162,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore.js";
 
     const pickerConfig = {
       apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
@@ -179,7 +185,7 @@
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-          ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No orders found.</td></tr>";
+          ordersBody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No orders found.</td></tr>";
           return;
         }
 
@@ -189,18 +195,32 @@
 
           const date = data.timestamp?.toDate().toLocaleString() || "Unknown";
           const flavors = (data.flavors || []).join(", ");
+          const orderRef = doc.ref;
 
           row.innerHTML = `
             <td>${date}</td>
             <td>${data.size}</td>
             <td>${flavors}</td>
             <td>€${data.price}</td>
+            <td><input type="checkbox" ${data.done ? 'checked' : ''} onchange="toggleDone('${orderRef.id}', this)" /></td>
           `;
           ordersBody.appendChild(row);
         });
       } catch (err) {
         console.error("Error loading orders:", err);
-        ordersBody.innerHTML = "<tr><td colspan='4'>Error loading orders.</td></tr>";
+        ordersBody.innerHTML = "<tr><td colspan='5'>Error loading orders.</td></tr>";
+      }
+    }
+
+    async function toggleDone(orderId, checkbox) {
+      const orderRef = doc(db, "orders", orderId);
+
+      try {
+        await updateDoc(orderRef, {
+          done: checkbox.checked
+        });
+      } catch (err) {
+        console.error("Error updating order status:", err);
       }
     }
 
