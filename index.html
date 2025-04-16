@@ -7,6 +7,7 @@
 
   <!-- Styles -->
   <style>
+    /* Root Colors */
     :root {
       --bg-light: #f0f0f0;
       --bg-dark: #0d1117;
@@ -15,17 +16,22 @@
       --accent: #58a6ff;
       --danger: #ff5555;
       --panel: #161b22;
-      --radius: 6px;
+      --radius: 10px;
+      --card-width: 250px;
+      --card-height: 300px;
     }
 
+    /* Body and Background */
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: "Courier New", Courier, monospace;
+      padding: 0;
       background-color: var(--bg-light);
       color: var(--text-light);
       transition: background-color 0.3s, color 0.3s;
     }
 
+    /* Navigation Bar */
     nav {
       display: flex;
       justify-content: space-between;
@@ -34,34 +40,40 @@
       padding: 1rem;
     }
 
-    nav a {
+    nav a, nav button {
       color: var(--text-dark);
       text-decoration: none;
-      padding: 0.5rem;
+      padding: 0.8rem;
       font-size: 1rem;
-    }
-
-    nav a:hover {
-      background-color: var(--accent);
-      border-radius: var(--radius);
-    }
-
-    .dark-mode-toggle {
-      background-color: var(--accent);
+      font-weight: bold;
       border: none;
-      color: #fff;
-      padding: 0.6rem 1.2rem;
-      border-radius: var(--radius);
+      background-color: transparent;
       cursor: pointer;
     }
 
+    nav a:hover, nav button:hover {
+      background-color: var(--accent);
+      border-radius: var(--radius);
+    }
+
+    /* Dark Mode Button */
+    .dark-mode-toggle {
+      background-color: var(--accent);
+      border-radius: var(--radius);
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      color: white;
+      font-size: 1rem;
+    }
+
+    /* Shop Cards */
     .shop-card {
       display: inline-block;
       background-color: var(--panel);
       color: var(--text-dark);
-      width: 200px;
-      height: 250px;
-      margin: 10px;
+      width: var(--card-width);
+      height: var(--card-height);
+      margin: 15px;
       border-radius: var(--radius);
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
@@ -74,6 +86,11 @@
       transform: scale(1.05);
     }
 
+    .shop-card h3 {
+      margin-top: 0;
+    }
+
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -91,109 +108,125 @@
       background-color: #fff;
       padding: 2rem;
       border-radius: var(--radius);
-      max-width: 400px;
-      text-align: center;
+      width: 80%;
+      max-width: 500px;
     }
 
-    .modal-close {
+    .modal-content h2 {
+      margin-top: 0;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 10px;
       background-color: var(--danger);
       color: white;
-      padding: 0.5rem 1rem;
       border: none;
       border-radius: var(--radius);
+      padding: 0.5rem;
       cursor: pointer;
-      margin-top: 1rem;
     }
 
-    .modal-close:hover {
-      background-color: #cc4444;
+    /* Dark Mode */
+    body.dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body.dark-mode nav {
+      background-color: var(--panel);
     }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
+
+  <!-- 🔒 Navigation Bar -->
   <nav>
-    <a href="#">Home</a>
-    <a href="#">Shops</a>
-    <a href="#" id="admin-link">Admin Panel</a>
-    <button class="dark-mode-toggle" id="dark-mode-toggle">Dark Mode</button>
+    <a href="codeman2025.github.io/woodparksales/admin.html" id="admin-btn">Admin</a>
+    <button class="dark-mode-toggle" id="dark-mode-btn">Toggle Dark Mode</button>
   </nav>
 
-  <!-- Shop Cards Section -->
-  <section id="shops-section">
-    <div class="shop-card" data-shop="1">
+  <!-- 🛍️ Shop Cards -->
+  <div class="shop-cards">
+    <div class="shop-card" id="shop1">
       <h3>Woodpark Slushie Shack</h3>
-      <p>Click for more info</p>
+      <p>Custom-made slushies with all your favorite flavors.</p>
     </div>
-    <div class="shop-card" data-shop="2">
+    <div class="shop-card" id="shop2">
       <h3>Woodpark Christmas Market</h3>
-      <p>Click for more info</p>
+      <p>Experience Christmas magic with unique gifts and decorations.</p>
     </div>
-    <div class="shop-card" data-shop="3">
+    <div class="shop-card" id="shop3">
       <h3>Woodpark Shop</h3>
-      <p>Click for more info</p>
+      <p>Shop for exclusive Woodpark merchandise and more.</p>
     </div>
-  </section>
+  </div>
 
-  <!-- Modal for Shop Information -->
-  <div id="shop-modal" class="modal">
+  <!-- 🛑 Modals -->
+  <div id="shop1-modal" class="modal">
     <div class="modal-content">
-      <h2 id="shop-title">Shop Name</h2>
-      <p id="shop-info">Shop details here...</p>
-      <button class="modal-close" id="modal-close">Close</button>
+      <h2>Woodpark Slushie Shack</h2>
+      <p>Custom-made slushies with all your favorite flavors, made fresh daily!</p>
+      <button class="close-modal">Close</button>
     </div>
+  </div>
+
+  <div id="shop2-modal" class="modal">
+    <div class="modal-content">
+      <h2>Woodpark Christmas Market</h2>
+      <p>Get into the holiday spirit with unique gifts, decorations, and food.</p>
+      <button class="close-modal">Close</button>
+    </div>
+  </div>
+
+  <div id="shop3-modal" class="modal">
+    <div class="modal-content">
+      <h2>Woodpark Shop</h2>
+      <p>Browse exclusive merchandise and more from Woodpark.</p>
+      <button class="close-modal">Close</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel" style="display:none; padding: 2rem; background-color: var(--panel);">
+    <h1>Admin Panel</h1>
+    <button id="logout-btn">Logout</button>
   </div>
 
   <!-- Scripts -->
   <script>
     // Dark Mode Toggle
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const body = document.body;
-
-    darkModeToggle.addEventListener('click', () => {
-      if (body.style.backgroundColor === 'rgb(13, 17, 23)') {
-        body.style.backgroundColor = 'rgb(240, 240, 240)';
-        body.style.color = 'rgb(0, 0, 0)';
-        darkModeToggle.style.backgroundColor = '#58a6ff';
-      } else {
-        body.style.backgroundColor = 'rgb(13, 17, 23)';
-        body.style.color = '#c9d1d9';
-        darkModeToggle.style.backgroundColor = '#58a6ff';
-      }
+    const darkModeButton = document.getElementById('dark-mode-btn');
+    darkModeButton.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
     });
 
-    // Admin Link Visibility (For demonstration purposes)
-    const adminLink = document.getElementById('admin-link');
-    adminLink.style.display = 'none'; // hide the admin link for now (implement logic to show it based on user login)
+    // Shop Modals
+    document.getElementById('shop1').addEventListener('click', () => {
+      document.getElementById('shop1-modal').style.display = 'flex';
+    });
+    document.getElementById('shop2').addEventListener('click', () => {
+      document.getElementById('shop2-modal').style.display = 'flex';
+    });
+    document.getElementById('shop3').addEventListener('click', () => {
+      document.getElementById('shop3-modal').style.display = 'flex';
+    });
 
-    // Shop Cards
-    const shopCards = document.querySelectorAll('.shop-card');
-    const shopModal = document.getElementById('shop-modal');
-    const shopTitle = document.getElementById('shop-title');
-    const shopInfo = document.getElementById('shop-info');
-    const modalCloseButton = document.getElementById('modal-close');
-
-    shopCards.forEach(card => {
-      card.addEventListener('click', () => {
-        const shopId = card.dataset.shop;
-        // Fetch shop details (this can be dynamic)
-        if (shopId === '1') {
-          shopTitle.textContent = 'Woodpark Slushie Shack';
-          shopInfo.textContent = 'A chill spot for your favorite slushies!';
-        } else if (shopId === '2') {
-          shopTitle.textContent = 'Woodpark Christmas Market';
-          shopInfo.textContent = 'Your festive destination for holiday shopping!';
-        } else if (shopId === '3') {
-          shopTitle.textContent = 'Woodpark Shop';
-          shopInfo.textContent = 'The place to find amazing deals year-round!';
-        }
-        shopModal.style.display = 'flex';
+    // Close Modals
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    closeModalButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        button.closest('.modal').style.display = 'none';
       });
     });
 
-    modalCloseButton.addEventListener('click', () => {
-      shopModal.style.display = 'none';
+    // Admin Panel Link
+    const adminBtn = document.getElementById('admin-btn');
+    adminBtn.addEventListener('click', () => {
+      window.location.href = 'https://codeman2025.github.io/woodparksales/admin.html';
     });
   </script>
+
 </body>
 </html>
