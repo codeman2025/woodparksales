@@ -176,7 +176,78 @@
       <button onclick="window.open('https://codeman2025.github.io/woodparksales/slushiepicker.html', '_blank')">Firebase Console</button>
       
     </div>
+<div id="order-dashboard" style="margin-top: 40px; font-family: Arial, sans-serif;">
+  <h2 style="text-align: center;">Slushie Orders</h2>
+  <div id="ordersTableWrapper" style="overflow-x: auto;">
+    <table id="ordersTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <thead>
+        <tr style="background-color: #3498db; color: white;">
+          <th style="padding: 10px; border: 1px solid #ccc;">Date</th>
+          <th style="padding: 10px; border: 1px solid #ccc;">Size</th>
+          <th style="padding: 10px; border: 1px solid #ccc;">Flavors</th>
+          <th style="padding: 10px; border: 1px solid #ccc;">Price</th>
+        </tr>
+      </thead>
+      <tbody id="ordersBody">
+        <tr><td colspan="4" style="text-align:center; padding: 20px;">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
+      authDomain: "slushiepicker.firebaseapp.com",
+      projectId: "slushiepicker",
+      storageBucket: "slushiepicker.firebasestorage.app",
+      messagingSenderId: "753485351126",
+      appId: "1:753485351126:web:9696c75375fc212f6de177",
+      measurementId: "G-C0TTW8CDCF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadOrders() {
+      const ordersBody = document.getElementById("ordersBody");
+      ordersBody.innerHTML = "";
+
+      try {
+        const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>No orders found.</td></tr>";
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const row = document.createElement("tr");
+
+          const date = data.timestamp?.toDate().toLocaleString() || "Unknown";
+          const flavors = (data.flavors || []).join(", ");
+
+          row.innerHTML = `
+            <td style="padding: 10px; border: 1px solid #ccc;">${date}</td>
+            <td style="padding: 10px; border: 1px solid #ccc;">${data.size}</td>
+            <td style="padding: 10px; border: 1px solid #ccc;">${flavors}</td>
+            <td style="padding: 10px; border: 1px solid #ccc;">€${data.price}</td>
+          `;
+          ordersBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error loading orders:", err);
+        ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>Error loading orders.</td></tr>";
+      }
+    }
+
+    loadOrders();
+  </script>
+</div>
     
     <div>
     <button id="logout-btn">Logout</button>
