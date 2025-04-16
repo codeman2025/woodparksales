@@ -6,21 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Woodpark Admin</title>
 
-  <!-- ✅ Google Analytics -->
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-X12XYY14J4');
-    gtag('event', 'page_view', {
-      page_location: window.location.href,
-      page_path: window.location.pathname,
-      page_title: document.title
-    });
   </script>
 
-  <!-- ✅ Styles -->
+  <!-- Styles -->
   <style>
     :root {
       --bg: #0d1117;
@@ -60,13 +55,6 @@
       text-align: center;
     }
 
-    #login-box h2 {
-      margin-bottom: 1.5rem;
-      font-weight: bold;
-      font-size: 1.5rem;
-      color: var(--accent);
-    }
-
     input[type="email"],
     input[type="password"] {
       width: 100%;
@@ -79,10 +67,6 @@
       font-size: 1rem;
     }
 
-    input::placeholder {
-      color: #8b949e;
-    }
-
     button {
       background-color: var(--accent);
       color: #fff;
@@ -91,17 +75,6 @@
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
       cursor: pointer;
-      font-family: inherit;
-    }
-
-    button:hover {
-      background-color: #4094db;
-    }
-
-    #error-message {
-      color: var(--danger);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
     }
 
     #admin-panel {
@@ -109,15 +82,20 @@
       padding: 2rem;
     }
 
-    #admin-panel h1 {
-      color: var(--accent);
-      font-size: 1.6rem;
+    #ordersTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
     }
 
-    #admin-panel p {
-      color: var(--text);
-      font-size: 1rem;
-      margin-bottom: 2rem;
+    #ordersTable th, #ordersTable td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    #ordersTable th {
+      background-color: #3498db;
+      color: white;
     }
 
     #logout-btn {
@@ -128,32 +106,11 @@
     #logout-btn:hover {
       background-color: #cc4444;
     }
-
-    .link-section, .cred-section {
-      background-color: var(--panel);
-      padding: 1rem;
-      border-radius: var(--radius);
-      margin: 1rem 0;
-    }
-
-    .link-section h2, .cred-section h2 {
-      color: var(--accent);
-    }
-
-    .link-section button {
-      margin: 0.3rem 0.3rem 0 0;
-    }
-
-    @media (max-width: 500px) {
-      #login-box {
-        padding: 1.2rem;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <!-- 🔒 Login Modal -->
+  <!-- Login Modal -->
   <div id="login-modal">
     <div id="login-box">
       <h2>Admin Login</h2>
@@ -166,50 +123,52 @@
     </div>
   </div>
 
-  <!-- 👨‍💻 Admin Panel -->
+  <!-- Admin Panel -->
   <div id="admin-panel">
     <h1>Welcome to the Admin Panel</h1>
-
-    <!-- 🔗 Quick Links -->
     <div class="link-section">
       <h2>Quick Access</h2>
-      <button onclick="window.open('https://codeman2025.github.io/woodparksales/slushiepicker.html', '_blank')">Firebase Console</button>
-      
+      <button onclick="window.open('https://codeman2025.github.io/woodparksales/slushiepicker.html', '_blank')">Slushie Picker</button>
     </div>
-<div id="order-dashboard" style="margin-top: 40px; font-family: Arial, sans-serif;">
-  <h2 style="text-align: center;">Slushie Orders</h2>
-  <div id="ordersTableWrapper" style="overflow-x: auto;">
-    <table id="ordersTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-      <thead>
-        <tr style="background-color: #3498db; color: white;">
-          <th style="padding: 10px; border: 1px solid #ccc;">Date</th>
-          <th style="padding: 10px; border: 1px solid #ccc;">Size</th>
-          <th style="padding: 10px; border: 1px solid #ccc;">Flavors</th>
-          <th style="padding: 10px; border: 1px solid #ccc;">Price</th>
-        </tr>
-      </thead>
-      <tbody id="ordersBody">
-        <tr><td colspan="4" style="text-align:center; padding: 20px;">Loading...</td></tr>
-      </tbody>
-    </table>
+
+    <h2 style="margin-top: 40px;">Slushie Orders</h2>
+    <div id="ordersTableWrapper" style="overflow-x:auto;">
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Size</th>
+            <th>Flavors</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button id="logout-btn">Logout</button>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore.js";
 
-    const firebaseConfig = {
+    const pickerConfig = {
       apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
       authDomain: "slushiepicker.firebaseapp.com",
       projectId: "slushiepicker",
-      storageBucket: "slushiepicker.firebasestorage.app",
+      storageBucket: "slushiepicker.appspot.com",
       messagingSenderId: "753485351126",
-      appId: "1:753485351126:web:9696c75375fc212f6de177",
-      measurementId: "G-C0TTW8CDCF"
+      appId: "1:753485351126:web:9696c75375fc212f6de177"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const app2 = initializeApp(pickerConfig, 'pickerApp');
+    const db = getFirestore(app2);
 
     async function loadOrders() {
       const ordersBody = document.getElementById("ordersBody");
@@ -220,7 +179,7 @@
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-          ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>No orders found.</td></tr>";
+          ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No orders found.</td></tr>";
           return;
         }
 
@@ -232,51 +191,41 @@
           const flavors = (data.flavors || []).join(", ");
 
           row.innerHTML = `
-            <td style="padding: 10px; border: 1px solid #ccc;">${date}</td>
-            <td style="padding: 10px; border: 1px solid #ccc;">${data.size}</td>
-            <td style="padding: 10px; border: 1px solid #ccc;">${flavors}</td>
-            <td style="padding: 10px; border: 1px solid #ccc;">€${data.price}</td>
+            <td>${date}</td>
+            <td>${data.size}</td>
+            <td>${flavors}</td>
+            <td>€${data.price}</td>
           `;
           ordersBody.appendChild(row);
         });
       } catch (err) {
         console.error("Error loading orders:", err);
-        ordersBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>Error loading orders.</td></tr>";
+        ordersBody.innerHTML = "<tr><td colspan='4'>Error loading orders.</td></tr>";
       }
     }
 
-    loadOrders();
+    window.loadOrders = loadOrders; // Make available globally
   </script>
-</div>
-    
-    <div>
-    <button id="logout-btn">Logout</button>
-  </div>
 
-  <!-- 🔥 Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
-
-  <!-- 🔐 Firebase Auth Logic -->
+  <!-- Auth Logic -->
   <script>
-    const firebaseConfig = {
+    const adminConfig = {
       apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
       authDomain: "woodpark-sales-admin-login.firebaseapp.com",
       projectId: "woodpark-sales-admin-login",
       storageBucket: "woodpark-sales-admin-login.appspot.com",
       messagingSenderId: "459986819604",
-      appId: "1:459986819604:web:1518c70666bb2c89906501",
-      measurementId: "G-MXTHWSKKMZ"
+      appId: "1:459986819604:web:1518c70666bb2c89906501"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(adminConfig);
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
-        gtag('event', 'login', { method: 'email/password' });
+        if (window.loadOrders) window.loadOrders();
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
@@ -293,16 +242,11 @@
       } catch (error) {
         console.error(error);
         document.getElementById('error-message').textContent = error.message;
-        gtag('event', 'login_failed', {
-          method: 'email/password',
-          error: error.message
-        });
       }
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
-      gtag('event', 'logout', { method: 'email/password' });
     });
   </script>
 </body>
