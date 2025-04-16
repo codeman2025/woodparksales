@@ -186,8 +186,8 @@
 
   <!-- 🔐 Firebase Auth Logic -->
   <script>
-    // Firebase Config
-    const firebaseConfig = {
+    // Firebase Config for Login Project
+    const firebaseLoginConfig = {
       apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
       authDomain: "woodpark-sales-admin-login.firebaseapp.com",
       projectId: "woodpark-sales-admin-login",
@@ -197,16 +197,31 @@
       measurementId: "G-MXTHWSKKMZ"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    // Firebase Config for Slushie Orders Project
+    const firebaseSlushieConfig = {
+      apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
+      authDomain: "slushiepicker.firebaseapp.com",
+      projectId: "slushiepicker",
+      storageBucket: "slushiepicker.firebasestorage.app",
+      messagingSenderId: "753485351126",
+      appId: "1:753485351126:web:9696c75375fc212f6de177",
+      measurementId: "G-C0TTW8CDCF"
+    };
+
+    // Initialize Firebase for Login
+    const firebaseLoginApp = firebase.initializeApp(firebaseLoginConfig, 'loginApp');
+    const auth = firebaseLoginApp.auth();
+
+    // Initialize Firebase for Slushie Orders
+    const firebaseSlushieApp = firebase.initializeApp(firebaseSlushieConfig, 'slushieApp');
+    const db = firebaseSlushieApp.firestore();
 
     // Handle login state
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
+        loadOrders(); // Load orders after login
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
@@ -288,9 +303,6 @@
         ordersBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding: 20px;'>Error loading orders!</td></tr>";
       }
     }
-
-    // Initial load of orders
-    loadOrders();
   </script>
 
 </body>
