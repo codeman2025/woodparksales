@@ -3,25 +3,20 @@
 <head>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/x-icon" href="035747C5-FBE0-4CE9-A93A-75DA687E04BB.png">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Woodpark Admin</title>
 
-  <!-- ✅ Google Analytics -->
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-X12XYY14J4');
-    gtag('event', 'page_view', {
-      page_location: window.location.href,
-      page_path: window.location.pathname,
-      page_title: document.title
-    });
   </script>
 
-  <!-- ✅ Styles -->
+  <!-- Styles -->
   <style>
     :root {
       --bg: #0d1117;
@@ -110,17 +105,6 @@
       padding: 2rem;
     }
 
-    #admin-panel h1 {
-      color: var(--accent);
-      font-size: 1.6rem;
-    }
-
-    #admin-panel p {
-      color: var(--text);
-      font-size: 1rem;
-      margin-bottom: 2rem;
-    }
-
     #logout-btn {
       background-color: var(--danger);
       margin-top: 1rem;
@@ -130,25 +114,19 @@
       background-color: #cc4444;
     }
 
-    .link-section, .cred-section {
+    .link-section {
       background-color: var(--panel);
       padding: 1rem;
       border-radius: var(--radius);
       margin: 1rem 0;
     }
 
-    .link-section h2, .cred-section h2 {
+    .link-section h2 {
       color: var(--accent);
     }
 
     .link-section button {
       margin: 0.3rem 0.3rem 0 0;
-    }
-
-    @media (max-width: 500px) {
-      #login-box {
-        padding: 1.2rem;
-      }
     }
 
     #order-dashboard {
@@ -180,24 +158,23 @@
 </head>
 <body>
 
-  <!-- 🔒 Login Modal -->
+  <!-- Login Modal -->
   <div id="login-modal">
     <div id="login-box">
       <h2>Admin Login</h2>
       <form id="login-form">
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="password" id="password" placeholder="Password" required />
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
         <button type="submit">Login</button>
       </form>
       <div id="error-message"></div>
     </div>
   </div>
 
-  <!-- 👨‍💻 Admin Panel -->
+  <!-- Admin Panel -->
   <div id="admin-panel">
     <h1>Welcome to the Admin Panel</h1>
 
-    <!-- 🔗 Quick Links -->
     <div class="link-section">
       <h2>Quick Access</h2>
       <button onclick="window.open('https://codeman2025.github.io/woodparksales/slushiepicker.html', '_blank')">ORDER SLUSHIE</button>
@@ -217,28 +194,27 @@
             </tr>
           </thead>
           <tbody id="ordersBody">
-            <tr><td colspan="5" style="text-align:center; padding: 20px;">Loading...</td></tr>
+            <tr><td colspan="5" style="text-align:center; padding: 20px;">No orders yet!</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-    <div>
-      <button id="logout-btn">Logout</button>
-    </div>
+
+    <button id="logout-btn">Logout</button>
   </div>
 
-  <!-- 🔥 Firebase SDKs -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore-compat.js"></script>
 
-  <!-- 🔐 Firebase Auth Logic -->
+  <!-- Firebase Config and Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
       authDomain: "slushiepicker.firebaseapp.com",
       projectId: "slushiepicker",
-      storageBucket: "slushiepicker.firebasestorage.app",
+      storageBucket: "slushiepicker.appspot.com",
       messagingSenderId: "753485351126",
       appId: "1:753485351126:web:9696c75375fc212f6de177",
       measurementId: "G-C0TTW8CDCF"
@@ -252,14 +228,12 @@
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
-        gtag('event', 'login', { method: 'email/password' });
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
       }
     });
 
-    // Handle login
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
@@ -270,20 +244,13 @@
       } catch (error) {
         console.error(error);
         document.getElementById('error-message').textContent = error.message;
-        gtag('event', 'login_failed', {
-          method: 'email/password',
-          error: error.message
-        });
       }
     });
 
-    // Handle logout
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
-      gtag('event', 'logout', { method: 'email/password' });
     });
 
-    // Load Orders from Firestore
     async function loadOrders() {
       const ordersBody = document.getElementById("ordersBody");
       ordersBody.innerHTML = "";
@@ -319,12 +286,10 @@
             </td>
           `;
 
-          // Add event listener for "Done" checkbox
           row.querySelector(".done-checkbox").addEventListener("change", async (e) => {
             const checked = e.target.checked;
             await db.collection("orders").doc(doc.id).update({ done: checked });
 
-            // Hide row if checked
             if (checked) {
               row.style.display = "none";
             } else {
@@ -339,7 +304,6 @@
       }
     }
 
-    // Load orders on page load
     window.onload = loadOrders;
   </script>
 </body>
