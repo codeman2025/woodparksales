@@ -90,6 +90,24 @@
       background-color: #4094db;
     }
 
+    .link-button {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), #4094db);
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
+      transition: all 0.25s ease;
+      margin: 1rem 0;
+    }
+
+    .link-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(88, 166, 255, 0.6);
+    }
+
     #error-message {
       color: var(--danger);
       font-size: 0.9rem;
@@ -135,24 +153,6 @@
     .done-checkbox {
       margin-left: 10px;
     }
-
-    .link-button {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--accent), #4094db);
-      color: white;
-      text-decoration: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius);
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
-      transition: all 0.25s ease;
-      margin-top: 2rem;
-    }
-
-    .link-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(88, 166, 255, 0.6);
-    }
   </style>
 
   <!-- 🔥 Firebase SDKs -->
@@ -177,7 +177,7 @@
   </div>
 
   <!-- 👨‍💻 Admin Panel -->
-  <div id="admin-panel">
+  <div id="admin-panel" style="display: none;">
     <h1>Welcome to the Admin Panel</h1>
 
     <a href="https://codeman2025.github.io/woodparksales/slushiepicker.html" class="link-button">Go to Slushie POS</a>
@@ -202,7 +202,6 @@
         </table>
       </div>
     </div>
-
     <button id="logout-btn">Logout</button>
   </div>
 
@@ -249,7 +248,7 @@
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-
+      
       try {
         await auth.signInWithEmailAndPassword(email, password);
       } catch (error) {
@@ -277,6 +276,7 @@
         snapshot.forEach((doc) => {
           const order = doc.data();
           const isDone = order.done || false;
+
           const row = document.createElement("tr");
           row.setAttribute("data-id", doc.id);
           if (isDone) {
@@ -318,5 +318,6 @@
       }
     }
   </script>
+
 </body>
 </html>
