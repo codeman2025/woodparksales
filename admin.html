@@ -7,17 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Woodpark Admin</title>
 
-  <!-- ✅ Google Analytics -->
-  <script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.fwXSHnIYz-4.O/m=gapi_iframes/rt=j/sv=1/d=1/ed=1/rs=AHpOoo_SvulQ5pP6FvvJyrQeIOJ4MStGTQ/cb=gapi.loaded_0?le=scs" async=""></script>
-  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-X12XYY14J4');
-  </script>
-
-  <!-- ✅ Styles -->
   <style>
     :root {
       --bg: #0d1117;
@@ -138,19 +127,16 @@
     }
   </style>
 
-  <!-- 🔥 Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-firestore-compat.js"></script>
-
 </head>
 <body>
 
-  <!-- 🔒 Login Modal -->
   <div id="login-modal" style="display: flex;">
     <div id="login-box">
       <h2>Admin Login</h2>
-      <form id="login-form" data-gtm-form-interact-id="0">
+      <form id="login-form">
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Password" required>
         <button type="submit">Login</button>
@@ -159,7 +145,6 @@
     </div>
   </div>
 
-  <!-- 👨‍💻 Admin Panel -->
   <div id="admin-panel" style="display: none;">
     <h1>Welcome to the Admin Panel</h1>
     <div id="order-dashboard">
@@ -169,6 +154,7 @@
           <thead>
             <tr>
               <th>Date</th>
+              <th>Name</th>
               <th>Size</th>
               <th>Flavors</th>
               <th>Price</th>
@@ -176,7 +162,7 @@
             </tr>
           </thead>
           <tbody id="ordersBody">
-            <tr><td colspan="5" style="text-align:center; padding: 20px;">No orders yet!</td></tr>
+            <tr><td colspan="6" style="text-align:center; padding: 20px;">No orders yet!</td></tr>
           </tbody>
         </table>
       </div>
@@ -184,9 +170,7 @@
     <button id="logout-btn">Logout</button>
   </div>
 
-  <!-- 🔐 Firebase Auth Logic -->
   <script>
-    // Firebase Config for Login Project
     const firebaseLoginConfig = {
       apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
       authDomain: "woodpark-sales-admin-login.firebaseapp.com",
@@ -197,7 +181,6 @@
       measurementId: "G-MXTHWSKKMZ"
     };
 
-    // Firebase Config for Slushie Orders Project
     const firebaseSlushieConfig = {
       apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
       authDomain: "slushiepicker.firebaseapp.com",
@@ -208,32 +191,28 @@
       measurementId: "G-C0TTW8CDCF"
     };
 
-    // Initialize Firebase for Login
     const firebaseLoginApp = firebase.initializeApp(firebaseLoginConfig, 'loginApp');
     const auth = firebaseLoginApp.auth();
 
-    // Initialize Firebase for Slushie Orders
     const firebaseSlushieApp = firebase.initializeApp(firebaseSlushieConfig, 'slushieApp');
     const db = firebaseSlushieApp.firestore();
 
-    // Handle login state
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
-        loadOrders(); // Load orders after login
+        loadOrders();
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
       }
     });
 
-    // Handle login
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      
+
       try {
         await auth.signInWithEmailAndPassword(email, password);
       } catch (error) {
@@ -242,12 +221,10 @@
       }
     });
 
-    // Handle logout
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
     });
 
-    // Load Orders from Firestore
     async function loadOrders() {
       const ordersBody = document.getElementById("ordersBody");
       ordersBody.innerHTML = "";
@@ -256,7 +233,7 @@
         const snapshot = await db.collection("orders").orderBy("timestamp", "desc").get();
 
         if (snapshot.empty) {
-          ordersBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding: 20px;'>No orders yet!</td></tr>";
+          ordersBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 20px;'>No orders yet!</td></tr>";
           return;
         }
 
@@ -272,6 +249,7 @@
 
           row.innerHTML = `
             <td>${new Date(order.timestamp.seconds * 1000).toLocaleString()}</td>
+            <td>${order.name || "N/A"}</td>
             <td>${order.size}</td>
             <td>${order.flavors.join(", ")}</td>
             <td>€${order.price}</td>
@@ -283,12 +261,10 @@
             </td>
           `;
 
-          // Add event listener for "Done" checkbox
           row.querySelector(".done-checkbox").addEventListener("change", async (e) => {
             const checked = e.target.checked;
             await db.collection("orders").doc(doc.id).update({ done: checked });
 
-            // Hide row if checked
             if (checked) {
               row.style.display = "none";
             } else {
@@ -300,10 +276,9 @@
         });
       } catch (error) {
         console.error(error);
-        ordersBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding: 20px;'>Error loading orders!</td></tr>";
+        ordersBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 20px;'>Error loading orders!</td></tr>";
       }
     }
   </script>
-
 </body>
 </html>
