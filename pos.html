@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Slushie POS</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #3498db, #e91e63);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 480px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+    .flex-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    label { font-weight: bold; color: #333; display: block; margin: 8px 0 4px; }
+    input, button, select {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover { background-color: #2980b9; }
+    .product-btn { flex: 1 1 45%; margin-bottom: 8px; }
+    #cart ul { list-style: none; padding: 0; }
+    #cart li { margin: 4px 0; }
+    #orders .order {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    #orders .paid { background: #e0ffe0; }
+    #orders button { margin-top: 8px; width: auto; }
+  </style>
+</head>
+<body>
+  <h1>Slushie POS</h1>
+
+  <div class="container" id="pos">
+    <label for="custName">Customer Name</label>
+    <input type="text" id="custName" placeholder="e.g. Alex" />
+
+    <label>Products</label>
+    <div class="flex-row" id="products">
+      <!-- Product buttons go here -->
+    </div>
+
+    <div id="cart">
+      <label>Cart</label>
+      <div id="cartContent">Cart is empty.</div>
+      <button id="placeOrderBtn">Place Order</button>
+    </div>
+  </div>
+
+  <div class="container" id="orders">
+    <h2>Live Orders</h2>
+    <!-- Orders get rendered here -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc,
+      onSnapshot, updateDoc, doc, query, orderBy, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
+      authDomain: "slushiepicker.firebaseapp.com",
+      projectId: "slushiepicker",
+      storageBucket: "slushiepicker.firebasestorage.app",
+      messagingSenderId: "753485351126",
+      appId: "1:753485351126:web:9696c75375fc212f6de177",
+      measurementId: "G-C0TTW8CDCF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const PRODUCTS = [
+      { id: 'ribena', name: 'Ribena Slushie', price: 2.00 },
+      { id: 'lime',   name: 'Lime Slushie',   price: 2.00 },
+      { id: 'plain',  name: 'Plain Slushie',  price: 1.50 }
+    ];
+
+    let cart = {};
+    const productsDiv = document.getElementById('products');
+    const cartContent = document.getElementById('cartContent');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const custNameInput = document.getElementById('custName');
+    const ordersDiv = document.getElementById('orders');
+
+    PRODUCTS.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'product-btn';
+      btn.textContent = `${p.name} (€${p.price.toFixed(2)})`;
+      btn.onclick = () => {
+        cart[p.id] = (cart[p.id] || 0) + 1;
+        renderCart();
+      };
+      productsDiv.appendChild(btn);
+    });
+
+    function renderCart() {
+      const entries = Object.entries(cart);
+      if (!entries.length) {
+        cartContent.textContent = 'Cart is empty.';
+        return;
+      }
+      let total = 0;
+      const ul = document.createElement('ul');
+      entries.forEach(([pid, qty]) => {
+        const prod = PRODUCTS.find(x => x.id === pid);
+        total += prod.price * qty;
+        const li = document.createElement('li');
+        li.textContent = `${prod.name} x${qty} — €${(prod.price*qty).toFixed(2)}`;
+        ul.appendChild(li);
+      });
+      const totP = document.createElement('p');
+      totP.innerHTML = `<strong>Total: €${total.toFixed(2)}</strong>`;
+      cartContent.innerHTML = '';
+      cartContent.appendChild(ul);
+      cartContent.appendChild(totP);
+    }
+
+    placeOrderBtn.addEventListener('click', async () => {
+      const name = custNameInput.value.trim();
+      if (!name) return alert('Enter customer name!');
+
+      const items = Object.entries(cart).map(([pid, qty]) => {
+        const prod = PRODUCTS.find(x => x.id === pid);
+        return { id: pid, name: prod.name, qty, price: prod.price };
+      });
+      if (!items.length) return alert('Cart is empty!');
+
+      const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+      placeOrderBtn.disabled = true;
+      try {
+        await addDoc(collection(db, 'orders'), {
+          customer: name,
+          items,
+          total,
+          paid: false,
+          timestamp: serverTimestamp()
+        });
+        cart = {};
+        renderCart();
+        custNameInput.value = '';
+      } catch (e) {
+        console.error('Order error:', e);
+        alert('Oops, order failed.');
+      }
+      placeOrderBtn.disabled = false;
+    });
+
+    const q = query(collection(db, 'orders'), orderBy('timestamp', 'desc'));
+    onSnapshot(q, snap => {
+      Array.from(ordersDiv.querySelectorAll('.order')).forEach(el => el.remove());
+
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const wrap = document.createElement('div');
+        wrap.className = 'order' + (data.paid ? ' paid' : '');
+        const time = data.timestamp?.toDate().toLocaleString() || '';
+        wrap.innerHTML = `
+          <strong>#${docSnap.id}</strong> — ${data.customer} — ${time}
+          <ul>
+            ${data.items.map(i => `<li>${i.name} x${i.qty}</li>`).join('')}
+          </ul>
+          <p><strong>Total: €${data.total.toFixed(2)}</strong></p>
+        `;
+        if (!data.paid) {
+          const btn = document.createElement('button');
+          btn.textContent = 'Mark Paid';
+          btn.onclick = async () => {
+            await updateDoc(doc(db, 'orders', docSnap.id), { paid: true });
+          };
+          wrap.appendChild(btn);
+        } else {
+          const paidTag = document.createElement('span');
+          paidTag.textContent = 'PAID ✔️';
+          paidTag.style.marginLeft = '8px';
+          wrap.appendChild(paidTag);
+        }
+        ordersDiv.appendChild(wrap);
+      });
+    });
+  </script>
+</body>
+</html>
