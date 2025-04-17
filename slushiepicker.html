@@ -122,7 +122,6 @@
     <label for="size">Choose your size:</label>
     <select id="size">
       <option value="small">Small</option>
-      <option value="medium">Medium</option>
       <option value="large">Large</option>
     </select>
 
@@ -182,12 +181,12 @@
       }
 
       let basePrice = 0;
-      if (size === "small") basePrice = 2;
+      if (size === "small") basePrice = 1;
       else if (size === "medium") basePrice = 3;
-      else if (size === "large") basePrice = 4;
+      else if (size === "large") basePrice = 1.5;
 
       const extraFlavors = selectedFlavors.length - 1;
-      const flavorCost = extraFlavors * 0.5;
+      const flavorCost = extraFlavors * 0.0;
       const totalPrice = (basePrice + flavorCost).toFixed(2);
 
       try {
