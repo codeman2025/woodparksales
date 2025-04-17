@@ -8,8 +8,7 @@
   <title>Woodpark Admin</title>
 
   <!-- ✅ Google Analytics -->
-  <script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.fwXSHnIYz-4.O/m=gapi_iframes/rt=j/sv=1/d=1/ed=1/rs=AHpOoo_SvulQ5pP6FvvJyrQeIOJ4MStGTQ/cb=gapi.loaded_0?le=scs" async=""></script>
-  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X12XYY14J4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -136,6 +135,24 @@
     .done-checkbox {
       margin-left: 10px;
     }
+
+    .link-button {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), #4094db);
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
+      transition: all 0.25s ease;
+      margin-top: 2rem;
+    }
+
+    .link-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(88, 166, 255, 0.6);
+    }
   </style>
 
   <!-- 🔥 Firebase SDKs -->
@@ -150,7 +167,7 @@
   <div id="login-modal" style="display: flex;">
     <div id="login-box">
       <h2>Admin Login</h2>
-      <form id="login-form" data-gtm-form-interact-id="0">
+      <form id="login-form">
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Password" required>
         <button type="submit">Login</button>
@@ -160,8 +177,11 @@
   </div>
 
   <!-- 👨‍💻 Admin Panel -->
-  <div id="admin-panel" style="display: none;">
+  <div id="admin-panel">
     <h1>Welcome to the Admin Panel</h1>
+
+    <a href="https://codeman2025.github.io/woodparksales/slushiepicker.html" class="link-button">Go to Slushie POS</a>
+
     <div id="order-dashboard">
       <h2>Slushie Orders</h2>
       <div id="ordersTableWrapper" style="overflow-x: auto;">
@@ -182,15 +202,12 @@
         </table>
       </div>
     </div>
+
     <button id="logout-btn">Logout</button>
   </div>
-  <div>
-    <a href="https://codeman2025.github.io/woodparksales/slushiepicker.html">link text</a>
-    </div>
 
   <!-- 🔐 Firebase Auth Logic -->
   <script>
-    // Firebase Config for Login Project
     const firebaseLoginConfig = {
       apiKey: "AIzaSyBBiYJ45x45AaAowk8-Z7ts3Ak6laZ5KHY",
       authDomain: "woodpark-sales-admin-login.firebaseapp.com",
@@ -201,7 +218,6 @@
       measurementId: "G-MXTHWSKKMZ"
     };
 
-    // Firebase Config for Slushie Orders Project
     const firebaseSlushieConfig = {
       apiKey: "AIzaSyBVUrnaxeUHnPgXq7reIO-ZG3DptpF0P0k",
       authDomain: "slushiepicker.firebaseapp.com",
@@ -212,32 +228,28 @@
       measurementId: "G-C0TTW8CDCF"
     };
 
-    // Initialize Firebase for Login
     const firebaseLoginApp = firebase.initializeApp(firebaseLoginConfig, 'loginApp');
     const auth = firebaseLoginApp.auth();
 
-    // Initialize Firebase for Slushie Orders
     const firebaseSlushieApp = firebase.initializeApp(firebaseSlushieConfig, 'slushieApp');
     const db = firebaseSlushieApp.firestore();
 
-    // Handle login state
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-modal').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
-        loadOrders(); // Load orders after login
+        loadOrders();
       } else {
         document.getElementById('login-modal').style.display = 'flex';
         document.getElementById('admin-panel').style.display = 'none';
       }
     });
 
-    // Handle login
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      
+
       try {
         await auth.signInWithEmailAndPassword(email, password);
       } catch (error) {
@@ -246,12 +258,10 @@
       }
     });
 
-    // Handle logout
     document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
     });
 
-    // Load Orders from Firestore
     async function loadOrders() {
       const ordersBody = document.getElementById("ordersBody");
       ordersBody.innerHTML = "";
@@ -267,19 +277,17 @@
         snapshot.forEach((doc) => {
           const order = doc.data();
           const isDone = order.done || false;
-
           const row = document.createElement("tr");
           row.setAttribute("data-id", doc.id);
           if (isDone) {
             row.style.display = "none";
           }
 
-          // Fix to display 'name' properly, even if it's missing
-          const orderName = order.name || "No Name"; // if name doesn't exist, display 'No Name'
+          const orderName = order.name || "No Name";
 
           row.innerHTML = `
             <td>${new Date(order.timestamp.seconds * 1000).toLocaleString()}</td>
-            <td>${orderName}</td> <!-- Displaying the name properly -->
+            <td>${orderName}</td>
             <td>${order.size}</td>
             <td>${order.flavors.join(", ")}</td>
             <td>€${order.price}</td>
@@ -310,6 +318,5 @@
       }
     }
   </script>
-
 </body>
 </html>
