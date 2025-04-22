@@ -189,9 +189,9 @@
       }
 
       let basePrice = 0;
-      if (size === "small") basePrice = 1;
+      if (size === "small") basePrice = 0.5;
       else if (size === "medium") basePrice = 3;
-      else if (size === "large") basePrice = 1.5;
+      else if (size === "large") basePrice = 1.0;
 
       const extraFlavors = selectedFlavors.length - 1;
       const flavorCost = extraFlavors * 0.0;
